@@ -21,7 +21,7 @@ func callback(ctx context.Context, engine *Engine, evt *Event) error {
 
 	err := engine.Return(evt)
 	if err != nil {
-		return fmt.Errorf("unable to return event: %w", err)
+		return fmt.Errorf("unable to return event: %s", err)
 	}
 
 	return nil
