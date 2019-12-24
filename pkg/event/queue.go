@@ -9,8 +9,11 @@ package event
 
 import "fmt"
 
+// Queue represents an event queue
 type Queue chan Event
 
+// QueueCfg is the structure gathering configuration details for a queue and
+// used to initialize a queue
 type QueueCfg struct {
 	Size uint64
 }

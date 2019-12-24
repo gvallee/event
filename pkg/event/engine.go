@@ -13,8 +13,10 @@ import (
 	"log"
 )
 
+// Engine is the structure representing an event engine. Applications using
+// the event system can have several engines.
 type Engine struct {
-	InactiveEvts Queue
+	inactiveEvts Queue
 	activeQueue  Queue
 	types        map[EventType][]CallbackFn
 }
@@ -47,12 +49,13 @@ func (e *Engine) handleActiveEvents() {
 	}
 }
 
+// Init creates a new event engine
 func (cfg QueueCfg) Init() *Engine {
 	var e Engine
 
 	log.Println("Initializing initial events...")
-	e.InactiveEvts = InitQueue(cfg)
-	if e.InactiveEvts == nil {
+	e.inactiveEvts = InitQueue(cfg)
+	if e.inactiveEvts == nil {
 		return nil
 	}
 
@@ -80,12 +83,15 @@ func (cfg QueueCfg) Init() *Engine {
 	return &e
 }
 
+// Return put an event back in the inactive queue when the application does not
+// need it anymore
 func (e *Engine) Return(evt *Event) error {
-	return e.InactiveEvts.Return(evt)
+	return e.inactiveEvts.Return(evt)
 }
 
+// Fini terminates an event engine
 func (e *Engine) Fini() {
-	evt := <-e.InactiveEvts
+	evt := <-e.inactiveEvts
 	err := evt.SetType(internalEvtTypeTerm)
 	if err != nil {
 		log.Println("[ERROR] failed to set the type for a termination event")
@@ -96,6 +102,7 @@ func (e *Engine) Fini() {
 	}
 }
 
+// GetEvent returns a event that can then be used by the application
 func (e *Engine) GetEvent(block bool) *Event {
 	if e == nil {
 		return nil
@@ -103,10 +110,10 @@ func (e *Engine) GetEvent(block bool) *Event {
 
 	var evt *Event
 	if block {
-		evt = Poll(&e.InactiveEvts)
+		evt = Poll(&e.inactiveEvts)
 		evt.engine = e
 	} else {
-		evt = Pull(&e.InactiveEvts)
+		evt = Pull(&e.inactiveEvts)
 		if evt != nil {
 			evt.engine = e
 		}

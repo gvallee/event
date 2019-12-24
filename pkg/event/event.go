@@ -15,6 +15,7 @@ import (
 // any event. Each argument is a slice of bytes of any length
 const MAXARGS = 8
 
+// Event is a structure representing an event
 type Event struct {
 	ID        uint64          //`json:"id"`
 	EventType EventType       //`json:"event_type"`
@@ -22,6 +23,9 @@ type Event struct {
 	engine    *Engine
 }
 
+// Emit triggers an event, i.e., the event will be added to the list of active
+// event until it is dispatched by the engine. When being dispatched, the
+// callbacks registered to the event type are automatically called.
 func (evt *Event) Emit(data []byte) error {
 	if evt == nil {
 		return fmt.Errorf("undefined event")
@@ -31,27 +35,3 @@ func (evt *Event) Emit(data []byte) error {
 
 	return nil
 }
-
-/*
-func BytesToEvent(b []byte) *Event {
-	var evt Event
-	err := json.Unmarshal(b, &evt)
-	if err != nil {
-		return nil
-	}
-
-	return &evt
-}
-
-func (e *Event) Bytes() []byte {
-	if e == nil {
-		return nil
-	}
-
-	data, err := json.Marshal(e)
-	if err != nil {
-		return nil
-	}
-	return []byte(fmt.Sprintf(string(data)))
-}
-*/
